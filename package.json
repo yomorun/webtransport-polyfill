@@ -1,0 +1,52 @@
+{
+  "name": "@yomo/webtransport-polyfill",
+  "version": "1.0.0",
+  "description": "a polyfill for the web transport",
+  "keywords": [
+    "webtransport",
+    "websocket"
+  ],
+  "license": "MIT",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "start": "tsup ./src/index.ts --dts --watch",
+    "build": "tsup ./src/index.ts --dts"
+  },
+  "np": {
+    "yarn": false,
+    "contents": "dist"
+  },
+  "author": "yomo",
+  "contributors": [
+    {
+      "name": "luzhenqian",
+      "email": "luzhenqian98@gmail.com",
+      "url": "https://www.luzhenqian.com"
+    }
+  ],
+  "devDependencies": {
+    "@types/node-fetch": "^2.5.12",
+    "@types/react": "^18.0.9",
+    "husky": "^7.0.4",
+    "node-fetch": "^2.6.6",
+    "react": "^18.1.0",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.3.1",
+    "tsup": "^6.5.0",
+    "typescript": "^4.5.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yomorun/presencejs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yomorun/presencejs/issues"
+  },
+  "homepage": "https://github.com/yomorun/presencejs#readme"
+}
