@@ -1,6 +1,6 @@
 {
   "name": "@yomo/webtransport-polyfill",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "a polyfill for the web transport",
   "keywords": [
     "webtransport",
@@ -10,6 +10,7 @@
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
+  "type": "module",
   "files": [
     "dist",
     "src"
