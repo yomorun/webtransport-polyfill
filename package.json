@@ -1,13 +1,12 @@
 {
   "name": "@yomo/webtransport-polyfill",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "a polyfill for the web transport",
   "keywords": [
     "webtransport",
     "websocket"
   ],
   "license": "MIT",
-  "main": "dist/index.mjs",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
   "type": "module",
