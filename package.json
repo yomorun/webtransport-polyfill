@@ -31,6 +31,7 @@
     }, {
       "name": "fanweixiao",
       "email": "fanweixiao@gmail.com"
+    }
   ],
   "devDependencies": {
     "@types/node-fetch": "^2.5.12",
