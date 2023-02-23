@@ -1,7 +1,7 @@
 {
   "name": "@yomo/webtransport-polyfill",
-  "version": "1.0.2",
-  "description": "a polyfill for the web transport",
+  "version": "1.0.3",
+  "description": "Polyfill the WebTransport protocol using WebSocket fallback if the browser does not support it natively.",
   "keywords": [
     "webtransport",
     "websocket"
@@ -28,7 +28,9 @@
       "name": "luzhenqian",
       "email": "luzhenqian98@gmail.com",
       "url": "https://www.luzhenqian.com"
-    }
+    }, {
+      "name": "fanweixiao",
+      "email": "fanweixiao@gmail.com"
   ],
   "devDependencies": {
     "@types/node-fetch": "^2.5.12",
@@ -43,10 +45,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yomorun/presencejs.git"
+    "url": "git+https://github.com/yomorun/webtransport-polyfill.git"
   },
   "bugs": {
-    "url": "https://github.com/yomorun/presencejs/issues"
+    "url": "https://github.com/yomorun/webtransport-polyfill/issues"
   },
-  "homepage": "https://github.com/yomorun/presencejs#readme"
+  "homepage": "https://github.com/yomorun/webtransport-polyfill#readme"
 }
