@@ -1,4 +1,4 @@
-# webtransport-polyfill
+# webtransport-polyfill ![NPM](https://badgen.net/npm/v/@yomo/webtransport-polyfill) [![MIT](https://badgen.net/npm/license/@yomo/webtransport-polyfill)](https://codecov.io/gh/yomorun/yomo) [![Discord](https://img.shields.io/discord/770589787404369930.svg?label=discord&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/RMtNhx7vds)
 
 The WebTransport Polyfill is a library that allows you to use the WebTransport API in browsers that do not support it natively by fallback to WebSocket.
 
