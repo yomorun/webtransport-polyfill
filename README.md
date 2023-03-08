@@ -4,8 +4,8 @@ The WebTransport Polyfill is a library that allows you to use the WebTransport A
 
 ## 🍱 WebTransport
 
-[WebTransport](https://web.dev/webtransport) is a web API that uses the HTTP/3 protocol as a bidirectional transport.
-It's intended for two-way communications between a web client and an HTTP/3 server.
+[WebTransport](https://web.dev/webtransport) is a web API that uses the HTTP/3 protocol as a bi-directional transport.
+It's intended for two-way communication between a web client and an HTTP/3 server.
 It supports sending data both unreliably via its datagram APIs, and reliably via its streams APIs.
 
 WebTransport enables low-latency, high-throughput communication between clients and servers, which is useful for applications such as SaaS with real-time collaboration feature, gaming, live streaming, video conferencing, and more.
@@ -25,25 +25,25 @@ However, WebTransport is not widely supported by browsers yet:
 
 *Link:* https://caniuse.com/?search=webtransport
 
-Frontend developers need to spend time and effort between high performance networking and browser compatibility.
+Frontend developers have to spend time and effort between high performance networking and browser compatibility.
 This polyfill project allows developers to use the WebTransport API in browsers that do not support it natively by providing a fallback transport mechanism and implementing the WebTransport protocol on top of it.
 
-## 🍜 Get Started
+## 🍜 Getting Started
 
 ### Installation
 
-You can install the WebTransport Polyfill using npm:
+You can install the WebTransport polyfill using npm:
 
 ```bash
-npm install @yomorun/webtransport-polyfill
+npm install @yomo/webtransport-polyfill
 ```
 
 ### Usage
 
-To use the WebTransport Polyfill, you need to import it into your JavaScript code:
+To use the WebTransport polyfill, you need to import it into your JavaScript code:
 
 ```javascript
-import { WebTransportPolyfill } from '@yomorun/webtransport-polyfill';
+import { WebTransportPolyfill } from '@yomo/webtransport-polyfill';
 ```
 
 Create a connection:
@@ -52,15 +52,15 @@ Create a connection:
 const conn = new WebTransportPolyfill('https://api.example.com');
 ```
 
-Then, use the WebTransport API to send and recieve data:
+Then, use the WebTransport API to send and receive data:
 
 ```javascript
-// Send data
+// Sending data
 const encoder = new TextEncoder();
 const message = encoder.encode('Hello, world!');
 conn.send(message);
 
-// Receive data
+// Receiving data
 const decoder = new TextDecoder();
 const data = await conn.receive();
 const message = decoder.decode(data);
@@ -69,15 +69,15 @@ console.log(message);
 
 ### Limitations
 
-The WebTransport Polyfill is not a complete implementation of the WebTransport API, and APIs maybe changed as this project is following [W3C Working Draft](https://www.w3.org/TR/webtransport/)
+The WebTransport polyfill is not a full implementation of the WebTransport API, and APIs may change as this project is following [W3C Working Draft](https://www.w3.org/TR/webtransport/)
 
-The polyfill consists of two parts: a client-side JavaScript library that exposes the WebTransport API to your web app, and a server-side backends that handles WebSocket and WebTransport connections at the same time, the source code can be found here: https://github.com/yomorun/presencejs.
+The polyfill consists of two parts: a client-side JavaScript library that exposes the WebTransport API to your web app, and a server-side backend that handles WebSocket and WebTransport connections simultaneously, the source code can be found here: https://github.com/yomorun/presencejs.
 
-To use this polyfill, you need to install and run the server component on your own machine or cloud service. You also need to include the client-side library in your web app and create a WebTransport object with the URL of your server. The polyfill will automatically detect if the browser supports WebTransport natively or not, and use the appropriate transport layer accordingly. You can then use the WebTransport object as you would normally do with the native API.
+To use this polyfill, you need to install and run the server component on your own machine or cloud service. You will also need to include the client-side library in your web app and create a WebTransport object with your server's URL. The polyfill will automatically detect wether the browser supports WebTransport natively or not, and use the appropriate transport layer accordingly. You can then use the WebTransport object as you would normally do with the native API.
 
-## 🥑 WebTransport vs WebSocket: A Comparison
+## 🥑 WebTransport vs WebSocket: Comparison
 
-WebTransport and WebSocket are both technologies that enable real-time communication between clients and servers over the web. However, there are several key differences between these two technologies.
+WebTransport and WebSocket are both technologies that enable real-time communication between clients and servers over the web. However, there are some key differences between them.
 
 ### Protocol
 
@@ -106,12 +106,12 @@ This is due to the use of the QUIC transport protocol, which is optimized for pe
 
 ### Conclusion
 
-WebTransport and WebSocket are two web APIs that offer different trade-offs between performance, flexibility, reliability, and compatibility. WebTransport may be a better choice for applications that need low-latency, event-driven communication .
-While WebSocket is a well-established technology that has been widely adopted for real-time communication over the web, WebTransport is a newer technology that provides several advantages in terms of flexibility, security, and performance by multiple streams per connection and unreliable datagrams. However, WebTransport is not yet widely supported by browsers and servers, hope this project helped on this.
+WebTransport and WebSocket are two web APIs that offer different trade-offs between performance, flexibility, reliability, and compatibility. WebTransport may be a better choice for applications that require low-latency, event-driven communication .
+While WebSocket is a well-established technology that has been widely adopted for real-time communication over the web, WebTransport is a newer technology that offers several advantages in terms of flexibility, security, and performance through multiple streams per connection and unreliable datagrams. However, WebTransport is not yet widely supported by browsers and servers, hopefully this project helped.
 
 ## 🍻 Contributing
 
-If you would like to contribute to the WebTransport Polyfill, please fork the repository and submit a pull request. You can also submit issues or feature requests on the GitHub page.
+If you would like to contribute to the WebTransport polyfill, please fork the repository and submit a pull request. You can also submit issues or feature requests on the GitHub page.
 
 ## 🥡 License
 
