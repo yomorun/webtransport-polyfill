@@ -16,30 +16,35 @@ export class WebTransportPolyfill {
   #ws: WebSocket | null = null;
   #connErr: any;
   datagrams: DataGrams | null = null;
-  constructor(public url: string) {
+  constructor(public url: string) { 
+    url = url.replace(/^http/, 'ws');
+    this.#ws = new WebSocket(url);
+    this.#ws.binaryType = 'arraybuffer';
+
     this.closed = new Promise((resolve, reject) => {
-      resolve(null);
-      reject();
+      if(!this.#ws) {
+        return reject(Error('WebTransport is closed'));
+      }
+      this.#ws.addEventListener('close', (error) => {
+        reject(error);
+      });
     });
+
     this.ready = new Promise((resolve, reject) => {
-      url = url.replace(/^http/, 'ws');
-      this.#ws = new WebSocket(url);
-      this.#ws.binaryType = 'arraybuffer';
+      if(!this.#ws) {
+        return reject(Error('WebTransport is closed'));
+      }
+
       this.#ws.addEventListener('open', () => {
         resolve(null);
-      }),
-        this.#ws.addEventListener('error', (err) => {
-          this.#connErr = err;
-          reject(err);
-        }),
-        this.#ws.addEventListener('close', () => {
-          this.closed = new Promise((resolve, reject) => {
-            resolve(null);
-            reject();
-          });
-          reject(this.#connErr);
-        }),
-        (this.datagrams = new DataGrams(this.#ws));
+      });
+      this.#ws.addEventListener('error', (err) => {
+        console.log(err, 'error')
+        this.#connErr = err;
+        reject(err);
+      });
+
+      this.datagrams = new DataGrams(this.#ws);
     });
   }
   createSendStream(): SendStream {

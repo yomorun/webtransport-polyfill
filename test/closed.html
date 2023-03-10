@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="../dist/index.global.js"></script>
+  </head>
+  <body>
+    <div>
+      Open in firefox
+    </div>
+    <script>
+      (async () => {
+        var uid = "ws-" + (Math.random() + 1).toString(36).substring(7);
+        const url = `https://lo.yomo.dev:8443/v1?publickey=kmJAUnCtkWbkNnhXYtZAGEJzGDGpFo1e1vkp6cm&id=${uid}`;
+        const transport = new WebTransport(url);
+
+        // Optionally, set up functions to respond to
+        // the connection closing:
+        transport.closed
+          .then(() => {
+            console.log(`The HTTP/3 connection to ${url} closed gracefully.`);
+          })
+          .catch((error) => {
+            console.error(
+              `The HTTP/3 connection to ${url} closed due to `,
+              error
+            );
+          });
+
+        // Once .ready fulfills, the connection can be used.
+        await transport.ready;
+      })();
+    </script>
+  </body>
+</html>
