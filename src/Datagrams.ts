@@ -4,7 +4,7 @@ export class DataGrams {
   constructor(ws: WebSocket) {
     return new Proxy(this, {
       get(_, prop) {
-        if (prop === 'writable') {
+        if (prop === "writable") {
           return new WritableStream<Uint8Array>({
             start(_) {},
             write(chunk) {
@@ -20,7 +20,7 @@ export class DataGrams {
             close() {},
             abort(_) {},
           });
-        } else if (prop === 'readable') {
+        } else if (prop === "readable") {
           return new ReadableStream({
             start(controller) {
               let timer: any | null = null;
@@ -32,7 +32,7 @@ export class DataGrams {
                 // controller.close();
                 // ws.removeEventListener('message', cb);
               };
-              ws.addEventListener('message', cb);
+              ws.addEventListener("message", cb);
             },
             cancel() {},
           });
