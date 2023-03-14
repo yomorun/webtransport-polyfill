@@ -16,7 +16,7 @@ export class WebTransportPolyfill {
   #ws: WebSocket | null = null;
   #connErr: any;
   datagrams: DataGrams | null = null;
-  constructor(public url: string) { 
+  constructor(public url: string) {
     url = url.replace(/^http/, 'ws');
     this.#ws = new WebSocket(url);
     this.#ws.binaryType = 'arraybuffer';
@@ -70,6 +70,7 @@ export class WebTransportPolyfill {
 if (typeof window !== 'undefined') {
   if (typeof window.WebTransport === 'undefined') {
     window.WebTransport = WebTransportPolyfill;
+    console.info("%cWebTransport polyfilled", "color: white; background-color: green");
   }
 }
 
