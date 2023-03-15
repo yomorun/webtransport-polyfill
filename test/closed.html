@@ -17,7 +17,7 @@
     let transport
     (async () => {
       var uid = "ws-" + (Math.random() + 1).toString(36).substring(7);
-      const url = `https://wsss.deno.dev/v1?publickey=kmJAUnCtkWbkNnhXYtZAGEJzGDGpFo1e1vkp6cm&id=${uid}`;
+      const url = `https://wsss.deno.dev/?id=${uid}`;
       transport = new WebTransport(url);
 
       // Optionally, set up functions to respond to
