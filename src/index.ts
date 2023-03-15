@@ -21,6 +21,8 @@ export class WebTransportPolyfill {
     this.#ws = new WebSocket(url);
     this.#ws.binaryType = 'arraybuffer';
 
+    console.log('using webtransport polyfill!');
+
     this.closed = new Promise((resolve, reject) => {
       if(!this.#ws) {
         return reject(Error('WebTransport is closed'));
