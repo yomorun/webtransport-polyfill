@@ -21,10 +21,10 @@ export class WebTransportPolyfill {
     this.#ws = new WebSocket(url);
     this.#ws.binaryType = 'arraybuffer';
 
-    console.log('using webtransport polyfill!');
+    console.info("%cWebTransport polyfilled", "color: white; background-color: green");
 
     this.closed = new Promise((resolve, reject) => {
-      if(!this.#ws) {
+      if (!this.#ws) {
         return reject(Error('WebTransport is closed'));
       }
       this.#ws.addEventListener('close', (error) => {
@@ -33,7 +33,7 @@ export class WebTransportPolyfill {
     });
 
     this.ready = new Promise((resolve, reject) => {
-      if(!this.#ws) {
+      if (!this.#ws) {
         return reject(Error('WebTransport is closed'));
       }
 
@@ -72,7 +72,6 @@ export class WebTransportPolyfill {
 if (typeof window !== 'undefined') {
   if (typeof window.WebTransport === 'undefined') {
     window.WebTransport = WebTransportPolyfill;
-    console.info("%cWebTransport polyfilled", "color: white; background-color: green");
   }
 }
 
