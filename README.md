@@ -10,16 +10,16 @@ It supports sending data both unreliably via its datagram APIs, and reliably via
 
 WebTransport enables low-latency, high-throughput communication between clients and servers, which is useful for applications such as SaaS with real-time collaboration feature, gaming, live streaming, video conferencing, and more.
 
-> 
+>
 > Try it out
 > The best way to experiment with WebTransport is to start up a compatible HTTP/3 server. You can then use this page with a basic JavaScript client to try out client/server communications.
-> 
+>
 > Additionally, a community-maintained echo server is available at [webtransport.day](https://webtransport.day).
 >
 
 *Link:* https://web.dev/webtransport#try-it-out
 
-However, WebTransport is not widely supported by browsers yet: 
+However, WebTransport is not widely supported by browsers yet:
 
 <img width="1367" alt="image" src="https://user-images.githubusercontent.com/65603/220812476-a384468a-39ab-4d7f-b9ad-645ec4e3c6fe.png">
 
@@ -38,6 +38,12 @@ You can install the WebTransport polyfill using npm:
 npm install @yomo/webtransport-polyfill
 ```
 
+for browser:
+
+```html
+<script src="https://unpkg.com/@yomo/webtransport-polyfill@latest/dist/index.global.js" async></script>
+```
+
 ### Usage
 
 To use the WebTransport polyfill, you need to import it into your JavaScript code:
@@ -52,20 +58,26 @@ Create a connection:
 const conn = new WebTransportPolyfill('https://api.example.com');
 ```
 
-Then, use the WebTransport API to send and receive data:
+send data:
 
 ```javascript
 // Sending data
 const encoder = new TextEncoder();
 const message = encoder.encode('Hello, world!');
 conn.send(message);
+```
 
+receive data:
+
+```javascript
 // Receiving data
 const decoder = new TextDecoder();
 const data = await conn.receive();
 const message = decoder.decode(data);
 console.log(message);
 ```
+
+more examples can be found here: [test/write.html](./test/write.html)
 
 ### Limitations
 
@@ -81,27 +93,27 @@ WebTransport and WebSocket are both technologies that enable real-time communica
 
 ### Protocol
 
-WebSocket uses a single underlying protocol (WebSocket protocol) for both transport and application layer, 
+WebSocket uses a single underlying protocol (WebSocket protocol) for both transport and application layer,
 while WebTransport uses a separate transport protocol (QUIC) and application protocols (e.g., HTTP, WebSocket, and HTTP/3).
 
 ### Multiplexing
 
-WebTransport allows for multiplexing of multiple streams over a single connection, which enables better resource utilization and lower latency. 
+WebTransport allows for multiplexing of multiple streams over a single connection, which enables better resource utilization and lower latency.
 WebSocket does not support multiplexing by default, but it can be achieved using various techniques such as sub-protocols.
 
 ### Security
 
-WebTransport provides built-in security features such as encrypted transport and origin authentication. 
+WebTransport provides built-in security features such as encrypted transport and origin authentication.
 WebSocket does not provide built-in security features, but it can be secured using SSL/TLS.
 
 ### Flexibility
 
-WebTransport is designed to be more flexible than WebSocket, as it can support different application protocols, including WebSocket, HTTP/3, and others. 
+WebTransport is designed to be more flexible than WebSocket, as it can support different application protocols, including WebSocket, HTTP/3, and others.
 WebSocket is limited to the WebSocket protocol only.
 
 ### Performance
 
-WebTransport is designed to be faster and more efficient than WebSocket, especially in high-latency and low-bandwidth environments. 
+WebTransport is designed to be faster and more efficient than WebSocket, especially in high-latency and low-bandwidth environments.
 This is due to the use of the QUIC transport protocol, which is optimized for performance in these types of environments.
 
 ### Conclusion
