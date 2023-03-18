@@ -10,19 +10,38 @@ declare global {
   }
 }
 
+// https://www.w3.org/TR/webtransport/#web-transport
 export class WebTransportPolyfill {
   public closed: Promise<unknown>;
   public ready: Promise<unknown>;
   #ws: WebSocket | null = null;
   #connErr: any;
   datagrams: DataGrams | null = null;
-  constructor(public url: string) {
-    url = url.replace(/^http/, 'ws');
-    this.#ws = new WebSocket(url);
+  // https://www.w3.org/TR/webtransport/#webtransport-constructor
+  // constructor(USVString url, optional WebTransportOptions options = {});
+  constructor(public _url: string) {
+    let url: URL
+    try {
+      url = new URL(_url);
+      if (url.protocol !== 'https:') {
+        // 5.2.3 If parsedURL scheme is not https, throw a SyntaxError exception.
+        throw new SyntaxError("protocol is not https")
+      }
+      if (url.hash !== '') {
+        // 5.2.4 If parsedURL fragment is not null, throw a SyntaxError exception.
+        throw new SyntaxError("fragment is not null")
+      }
+    } catch (err) {
+      // 5.2.2 If parsedURL is a failure, throw a SyntaxError exception
+      throw new SyntaxError("url is not valid")
+    }
+    let parsedUrl = url.toString().replace(/^http/, 'ws');
+    this.#ws = new WebSocket(parsedUrl);
     this.#ws.binaryType = 'arraybuffer';
 
     console.info("%cWebTransport polyfilled", "color: white; background-color: green");
 
+    // readonly attribute Promise<WebTransportCloseInfo> closed;
     this.closed = new Promise((resolve, reject) => {
       if (!this.#ws) {
         return reject(Error('WebTransport is closed'));
@@ -32,6 +51,7 @@ export class WebTransportPolyfill {
       });
     });
 
+    // readonly attribute Promise<undefined> ready;
     this.ready = new Promise((resolve, reject) => {
       if (!this.#ws) {
         return reject(Error('WebTransport is closed'));
@@ -57,6 +77,8 @@ export class WebTransportPolyfill {
     if (!this.#ws) throw Error('WebTransport is closed');
     return new ReceiveStream(this.#ws);
   }
+
+  // Promise<WebTransportBidirectionalStream> createBidirectionalStream(optional WebTransportSendStreamOptions options = {});
   createBidirectionalStream(): Promise<BidirectionalStream> {
     return new Promise((resolve, reject) => {
       if (!this.#ws) return reject(Error('WebTransport is closed'));
