@@ -25,15 +25,15 @@ export class WebTransportPolyfill {
       url = new URL(_url);
       if (url.protocol !== 'https:') {
         // 5.2.3 If parsedURL scheme is not https, throw a SyntaxError exception.
-        throw new SyntaxError("protocol is not https")
+        throw new SyntaxError("Invalid protocol")
       }
       if (url.hash !== '') {
         // 5.2.4 If parsedURL fragment is not null, throw a SyntaxError exception.
-        throw new SyntaxError("fragment is not null")
+        throw new SyntaxError("Fragment is not permitted")
       }
     } catch (err) {
       // 5.2.2 If parsedURL is a failure, throw a SyntaxError exception
-      throw new SyntaxError("url is not valid")
+      throw new SyntaxError(err.message)
     }
     let parsedUrl = url.toString().replace(/^http/, 'ws');
     this.#ws = new WebSocket(parsedUrl);
