@@ -3,6 +3,7 @@ import * as assert from 'assert';
 import { WebTransportPolyfill } from '../src/index';
 
 describe('.ctor', () => {
+
   it('should throw SyntaxError when url is not valid', () => {
     const err = new SyntaxError("Invalid URL");
     assert.throws(() => { new WebTransportPolyfill("oooo") }, err);
@@ -17,13 +18,29 @@ describe('.ctor', () => {
     const err = new SyntaxError("Fragment is not permitted");
     assert.throws(() => { new WebTransportPolyfill("https://api.example.com/#abced") }, err);
   });
+
+  it('should work', () => {
+    Object.assign(globalThis, {
+      WebSocket: class WebSocket {
+        constructor(url: string) {
+          assert.strictEqual(url, "wss://api.example.com/");
+        }
+      }
+    });
+    new WebTransportPolyfill("https://api.example.com");
+  });
 })
 
 describe('close()', () => {
   it('should close the connection', () => {
     Object.assign(globalThis, {
       WebSocket: class WebSocket {
-        close() {
+        constructor(url: string) {
+          assert.strictEqual(url, "wss://api.example.com/");
+        }
+        close(a, b) {
+          assert.strictEqual(a, 1000);
+          assert.strictEqual(b, "test");
         }
       }
     });
