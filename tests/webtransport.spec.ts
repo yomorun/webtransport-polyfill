@@ -20,8 +20,13 @@ describe('.ctor', () => {
 })
 
 describe('close()', () => {
-  // still do not know how to handle: ReferenceError: WebSocket is not defined
-  it.skip('should close the connection', () => {
+  it('should close the connection', () => {
+    Object.assign(globalThis, {
+      WebSocket: class WebSocket {
+        close() {
+        }
+      }
+    });
     const wt = new WebTransportPolyfill("https://api.example.com");
     wt.close({ closeCode: 1000, reason: "test" });
   });
