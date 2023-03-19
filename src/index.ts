@@ -3,6 +3,7 @@ import { BidirectionalStream } from './BidirectionalStream';
 import { DataGrams } from './Datagrams';
 import { ReceiveStream } from './ReceiveStream';
 import { SendStream } from './SendStream';
+import { WebTransportCloseInfo } from './WebTransportCloseInfo';
 
 declare global {
   interface Window {
@@ -10,19 +11,44 @@ declare global {
   }
 }
 
+// https://www.w3.org/TR/webtransport/#web-transport
 export class WebTransportPolyfill {
   public closed: Promise<unknown>;
   public ready: Promise<unknown>;
+  public close: (closeInfo?: WebTransportCloseInfo) => void;
   #ws: WebSocket | null = null;
   #connErr: any;
   datagrams: DataGrams | null = null;
-  constructor(public url: string) {
-    url = url.replace(/^http/, 'ws');
-    this.#ws = new WebSocket(url);
+
+  // https://www.w3.org/TR/webtransport/#webtransport-constructor
+  // constructor(USVString url, optional WebTransportOptions options = {});
+  constructor(_url: string) {
+    let url: URL
+    try {
+      url = new URL(_url);
+      if (url.protocol !== 'https:') {
+        // 5.2.3 If parsedURL scheme is not https, throw a SyntaxError exception.
+        // be careful, do not allow `wss` protocol here, this prevents code reuseable when upgrade to webtransport. otherwise, developer need to change `wss` to `https` when upgrade from websocket to webtransport.
+        throw new SyntaxError("Invalid protocol")
+      }
+      if (url.hash !== '') {
+        // 5.2.4 If parsedURL fragment is not null, throw a SyntaxError exception.
+        throw new SyntaxError("Fragment is not permitted")
+      }
+    } catch (err) {
+      // 5.2.2 If parsedURL is a failure, throw a SyntaxError exception
+      throw new SyntaxError(err.message)
+    }
+    // change `https` to `wss`
+    url.protocol = 'wss';
+    let parsedUrl = url.toString();
+
+    this.#ws = new WebSocket(parsedUrl);
     this.#ws.binaryType = 'arraybuffer';
 
     console.info("%cWebTransport polyfilled", "color: white; background-color: green");
 
+    // readonly attribute Promise<WebTransportCloseInfo> closed;
     this.closed = new Promise((resolve, reject) => {
       if (!this.#ws) {
         return reject(Error('WebTransport is closed'));
@@ -32,6 +58,7 @@ export class WebTransportPolyfill {
       });
     });
 
+    // readonly attribute Promise<undefined> ready;
     this.ready = new Promise((resolve, reject) => {
       if (!this.#ws) {
         return reject(Error('WebTransport is closed'));
@@ -48,6 +75,14 @@ export class WebTransportPolyfill {
 
       this.datagrams = new DataGrams(this.#ws);
     });
+
+    // https://www.w3.org/TR/webtransport/#dom-webtransport-close
+    this.close = (closeInfo?: WebTransportCloseInfo) => {
+      if (!this.#ws) {
+        return;
+      }
+      this.#ws.close(closeInfo?.closeCode, closeInfo?.reason);
+    }
   }
   createSendStream(): SendStream {
     if (!this.#ws) throw Error('WebTransport is closed');
@@ -57,6 +92,8 @@ export class WebTransportPolyfill {
     if (!this.#ws) throw Error('WebTransport is closed');
     return new ReceiveStream(this.#ws);
   }
+
+  // Promise<WebTransportBidirectionalStream> createBidirectionalStream(optional WebTransportSendStreamOptions options = {});
   createBidirectionalStream(): Promise<BidirectionalStream> {
     return new Promise((resolve, reject) => {
       if (!this.#ws) return reject(Error('WebTransport is closed'));

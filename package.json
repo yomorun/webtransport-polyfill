@@ -28,6 +28,11 @@
     "contents": "dist"
   },
   "devDependencies": {
+    "@types/assert": "^1.5.6",
+    "@types/mocha": "^10.0.1",
+    "assert": "^2.0.0",
+    "mocha": "^10.2.0",
+    "ts-node": "^10.9.1",
     "tsup": "^6.6.3",
     "typescript": "^4.9.5"
   },
@@ -41,6 +46,9 @@
   },
   "scripts": {
     "start": "tsup ./src/index.ts --dts --watch",
-    "build": "tsup ./src/index.ts --dts"
+    "build": "tsup ./src/index.ts --dts",
+    "test": "mocha",
+    "clean": "rm -rf ./dist",
+    "compile": "tsc"
   }
 }
