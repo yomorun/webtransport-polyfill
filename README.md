@@ -63,29 +63,56 @@ import { WebTransportPolyfill } from "@yomo/webtransport-polyfill";
 Create a connection:
 
 ```javascript
-const conn = new WebTransportPolyfill("https://api.example.com");
-```
+const url = `https://wsss.deno.dev/`;
+const transport = new WebTransport(url);
 
-send data:
+// Optionally, set up functions to respond to the connection closing:
+transport.closed
+  .then(() => {
+    console.log(`The HTTP/3 connection to ${url} closed gracefully.`);
+  })
+  .catch((error) => {
+    console.error(`The HTTP/3 connection to ${url} closed due to `, error);
+  });
 
-```javascript
-// Sending data
-const encoder = new TextEncoder();
-const message = encoder.encode("Hello, world!");
-conn.send(message);
-```
+// Once .ready fulfilled, the connection can be used
+await transport.ready;
 
-receive data:
+// Sending datagrams to the server
+const writer = transport.datagrams.writable.getWriter();
+const data1 = new Uint8Array([65, 66, 67]);
+const data2 = new Uint8Array([68, 69, 70, 71]);
+writer.write(data1);
+setTimeout(() => {
+  writer.write(data2);
+}, 1e3);
 
-```javascript
-// Receiving data
-const decoder = new TextDecoder();
-const data = await conn.receive();
-const message = decoder.decode(data);
-console.log(message);
+setTimeout(() => {
+  // close the connection
+  transport.close({
+    closeCode: 3000,
+    reason: "close connection by setTimeout",
+  });
+}, 3e3);
+
+// Read datagrams from the server.
+const reader = transport.datagrams.readable.getReader();
+while (true) {
+  const { value, done } = await reader.read();
+  if (done) {
+    break;
+  }
+  console.log(value);
+}
 ```
 
 more examples can be found here: [test/write.html](./test/write.html)
+
+### Test
+
+```bash
+pnpm run test
+```
 
 ### Limitations
 
@@ -161,16 +188,73 @@ If you would like to contribute to the WebTransport polyfill, please fork the
 repository and submit a pull request. You can also submit issues or feature
 requests on the GitHub page.
 
-Test:
-
-```bash
-pnpm run test
-```
-
 pre-publish:
 
 ```bash
 pnpm run clean && pnpm run compile
+```
+
+### Public WebSocket Test Server
+
+We deploy a public WebSocket server on [Deno](https://deno.com/deploy) for
+testing the WebTransport polyfill: `https://wsss.deno.dev`.
+
+source code:
+
+```typescript
+import { serve } from "https://deno.land/std@0.180.0/http/server.ts";
+
+var a = 0;
+
+serve((_req) => {
+  console.log("> got a _req!");
+  const upgrade = _req.headers.get("upgrade") || "";
+  if (upgrade.toLowerCase() != "websocket") {
+    return new Response("request isn't trying to upgrade to websocket.");
+  }
+  const { socket, response } = Deno.upgradeWebSocket(_req);
+  socket.onopen = () => console.log("socket opened", (new Date()).valueOf());
+  socket.onmessage = (e) => {
+    console.log(">[" + ++a + "] socket message:", Deno.inspect(e.data));
+    socket.send(
+      "received length=" + e.data.byteLength + " timestamp:" + new Date(),
+    );
+  };
+  socket.onerror = (e) => console.log("socket errored:", e.message);
+  socket.onclose = () => console.log("socket closed");
+  return response;
+}, { port: 6000 });
+
+console.log("working");
+```
+
+### Test on your local dev machine
+
+we set domain `lo.yomo.dev` to `127.0.0.1` for development purpose, frontend
+developers can use this domain to test WebTransport polyfill on their local dev.
+
+```bash
+$ dig +all @8.8.8.8 lo.yomo.dev
+
+; <<>> DiG 9.10.6 <<>> +all @8.8.8.8 lo.yomo.dev
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 19969
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 512
+;; QUESTION SECTION:
+;lo.yomo.dev.			IN	A
+
+;; ANSWER SECTION:
+lo.yomo.dev.		600	IN	A	127.0.0.1
+
+;; Query time: 65 msec
+;; SERVER: 8.8.8.8#53(8.8.8.8)
+;; WHEN: Sun Mar 19 12:34:09 CST 2023
+;; MSG SIZE  rcvd: 56
 ```
 
 ## 🥡 License

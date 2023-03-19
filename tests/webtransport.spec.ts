@@ -2,8 +2,17 @@
 import * as assert from 'assert';
 import { WebTransportPolyfill } from '../src/index';
 
-describe('.ctor', () => {
+// suppress console.log and console.info
+beforeEach(() => {
+  Object.assign(globalThis, {
+    console: {
+      log: () => { },
+      info: () => { }
+    }
+  })
+});
 
+describe('test .ctor', () => {
   it('should throw SyntaxError when url is not valid', () => {
     const err = new SyntaxError("Invalid URL");
     assert.throws(() => { new WebTransportPolyfill("oooo") }, err);
@@ -31,7 +40,7 @@ describe('.ctor', () => {
   });
 })
 
-describe('close()', () => {
+describe('test close()', () => {
   it('should close the connection', () => {
     Object.assign(globalThis, {
       WebSocket: class WebSocket {
@@ -39,12 +48,28 @@ describe('close()', () => {
           assert.strictEqual(url, "wss://api.example.com/");
         }
         close(a, b) {
-          assert.strictEqual(a, 1000);
+          assert.strictEqual(a, undefined);
+          assert.strictEqual(b, undefined);
+        }
+      }
+    });
+    const wt = new WebTransportPolyfill("https://api.example.com");
+    wt.close();
+  })
+
+  it('should close the connection with code and reason', () => {
+    Object.assign(globalThis, {
+      WebSocket: class WebSocket {
+        constructor(url: string) {
+          assert.strictEqual(url, "wss://api.example.com/");
+        }
+        close(a, b) {
+          assert.strictEqual(a, 4321);
           assert.strictEqual(b, "test");
         }
       }
     });
     const wt = new WebTransportPolyfill("https://api.example.com");
-    wt.close({ closeCode: 1000, reason: "test" });
+    wt.close({ closeCode: 4321, reason: "test" });
   });
 })

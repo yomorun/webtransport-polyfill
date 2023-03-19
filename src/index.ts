@@ -53,8 +53,8 @@ export class WebTransportPolyfill {
       if (!this.#ws) {
         return reject(Error('WebTransport is closed'));
       }
-      this.#ws.addEventListener('close', (error) => {
-        reject(error);
+      this.#ws.addEventListener('close', (ce) => {
+        resolve(ce)
       });
     });
 
@@ -80,6 +80,13 @@ export class WebTransportPolyfill {
     this.close = (closeInfo?: WebTransportCloseInfo) => {
       if (!this.#ws) {
         return;
+      }
+      // in case of close code is not in range 3000-4999, set it to 4000
+      // ref: https://www.rfc-editor.org/rfc/rfc6455.html#section-7.4.2
+      if (closeInfo) {
+        if (closeInfo.closeCode < 3000 || closeInfo.closeCode > 4999) {
+          closeInfo.closeCode = 4000
+        }
       }
       this.#ws.close(closeInfo?.closeCode, closeInfo?.reason);
     }
