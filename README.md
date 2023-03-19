@@ -63,26 +63,47 @@ import { WebTransportPolyfill } from "@yomo/webtransport-polyfill";
 Create a connection:
 
 ```javascript
-const conn = new WebTransportPolyfill("https://api.example.com");
-```
+const url = `https://wsss.deno.dev/`;
+const transport = new WebTransport(url);
 
-send data:
+// Optionally, set up functions to respond to the connection closing:
+transport.closed
+  .then(() => {
+    console.log(`The HTTP/3 connection to ${url} closed gracefully.`);
+  })
+  .catch((error) => {
+    console.error(`The HTTP/3 connection to ${url} closed due to `, error);
+  });
 
-```javascript
-// Sending data
-const encoder = new TextEncoder();
-const message = encoder.encode("Hello, world!");
-conn.send(message);
-```
+// Once .ready fulfilled, the connection can be used
+await transport.ready;
 
-receive data:
+// Sending datagrams to the server
+const writer = transport.datagrams.writable.getWriter();
+const data1 = new Uint8Array([65, 66, 67]);
+const data2 = new Uint8Array([68, 69, 70, 71]);
+writer.write(data1);
+setTimeout(() => {
+  writer.write(data2);
+}, 1e3);
 
-```javascript
-// Receiving data
-const decoder = new TextDecoder();
-const data = await conn.receive();
-const message = decoder.decode(data);
-console.log(message);
+setTimeout(() => {
+  // close the connection
+  transport.close({
+    closeCode: 3000,
+    reason: "close connection by setTimeout",
+  });
+}, 3e3);
+
+// Read datagrams from the server.
+const reader = transport.datagrams.readable.getReader();
+while (true) {
+  const { value, done } = await reader.read();
+  if (done) {
+    break;
+  }
+  console.log(value);
+}
 ```
 
 more examples can be found here: [test/write.html](./test/write.html)

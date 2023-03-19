@@ -54,8 +54,6 @@ export class WebTransportPolyfill {
         return reject(Error('WebTransport is closed'));
       }
       this.#ws.addEventListener('close', (ce) => {
-        // reject(error);
-        console.log(ce)
         resolve(ce)
       });
     });
@@ -80,7 +78,6 @@ export class WebTransportPolyfill {
 
     // https://www.w3.org/TR/webtransport/#dom-webtransport-close
     this.close = (closeInfo?: WebTransportCloseInfo) => {
-      console.info('>> WebTransport close', closeInfo.closeCode, closeInfo.reason)
       if (!this.#ws) {
         return;
       }
