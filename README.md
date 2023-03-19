@@ -87,6 +87,12 @@ console.log(message);
 
 more examples can be found here: [test/write.html](./test/write.html)
 
+### Test
+
+```bash
+pnpm run test
+```
+
 ### Limitations
 
 The WebTransport polyfill is not a full implementation of the WebTransport API,
@@ -161,16 +167,73 @@ If you would like to contribute to the WebTransport polyfill, please fork the
 repository and submit a pull request. You can also submit issues or feature
 requests on the GitHub page.
 
-Test:
-
-```bash
-pnpm run test
-```
-
 pre-publish:
 
 ```bash
 pnpm run clean && pnpm run compile
+```
+
+### Public WebSocket Test Server
+
+We deploy a public WebSocket server on [Deno](https://deno.com/deploy) for
+testing the WebTransport polyfill: `https://wsss.deno.dev`.
+
+source code:
+
+```typescript
+import { serve } from "https://deno.land/std@0.178.0/http/server.ts";
+
+var a = 0;
+
+serve((_req) => {
+  console.log("> got a _req!");
+  const upgrade = _req.headers.get("upgrade") || "";
+  if (upgrade.toLowerCase() != "websocket") {
+    return new Response("request isn't trying to upgrade to websocket.");
+  }
+  const { socket, response } = Deno.upgradeWebSocket(_req);
+  socket.onopen = () => console.log("socket opened", (new Date()).valueOf());
+  socket.onmessage = (e) => {
+    console.log(">[" + ++a + "] socket message:", Deno.inspect(e.data));
+    socket.send(
+      "received length=" + e.data.byteLength + " timestamp:" + new Date(),
+    );
+  };
+  socket.onerror = (e) => console.log("socket errored:", e.message);
+  socket.onclose = () => console.log("socket closed");
+  return response;
+}, { port: 6000 });
+
+console.log("working");
+```
+
+### Test on your local dev machine
+
+we set domain `lo.yomo.dev` to `127.0.0.1` for development purpose, frontend
+developers can use this domain to test WebTransport polyfill on their local dev.
+
+```bash
+$ dig +all @8.8.8.8 lo.yomo.dev
+
+; <<>> DiG 9.10.6 <<>> +all @8.8.8.8 lo.yomo.dev
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 19969
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 512
+;; QUESTION SECTION:
+;lo.yomo.dev.			IN	A
+
+;; ANSWER SECTION:
+lo.yomo.dev.		600	IN	A	127.0.0.1
+
+;; Query time: 65 msec
+;; SERVER: 8.8.8.8#53(8.8.8.8)
+;; WHEN: Sun Mar 19 12:34:09 CST 2023
+;; MSG SIZE  rcvd: 56
 ```
 
 ## 🥡 License
