@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Document</title>
-  <script src="https://unpkg.com/@yomo/webtransport-polyfill@latest/dist/index.global.js"></script>
+  <script src="../dist/index.global.js"></script>
 </head>
 
 <body>
@@ -24,11 +24,11 @@
       // the connection closing:
       transport.closed
         .then(() => {
-          console.log(`The HTTP/3 connection to ${url} closed gracefully.`);
+          console.log(`The polyfilled HTTP/3 connection to ${url} closed gracefully.`);
         })
         .catch((error) => {
           console.error(
-            `The HTTP/3 connection to ${url} closed due to `,
+            `The polyfilled HTTP/3 connection to ${url} closed due to `,
             error
           );
         });
@@ -36,15 +36,12 @@
       // Once .ready fulfills, the connection can be used.
       await transport.ready;
 
+      setTimeout(() => {
+        transport.close()
+      }, 3000)
+
       console.log("connected")
     })();
-
-    // setTimeout(() => {
-    //   transport.close({
-    //     closeCode: 017,
-    //     reason: 'CloseButtonPressed'
-    //   })
-    // }, 3000)
   </script>
 </body>
 

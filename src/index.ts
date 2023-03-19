@@ -83,8 +83,10 @@ export class WebTransportPolyfill {
       }
       // in case of close code is not in range 3000-4999, set it to 4000
       // ref: https://www.rfc-editor.org/rfc/rfc6455.html#section-7.4.2
-      if (closeInfo.closeCode < 3000 || closeInfo.closeCode > 4999) {
-        closeInfo.closeCode = 4000
+      if (closeInfo) {
+        if (closeInfo.closeCode < 3000 || closeInfo.closeCode > 4999) {
+          closeInfo.closeCode = 4000
+        }
       }
       this.#ws.close(closeInfo?.closeCode, closeInfo?.reason);
     }
