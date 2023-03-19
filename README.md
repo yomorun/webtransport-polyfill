@@ -181,7 +181,7 @@ testing the WebTransport polyfill: `https://wsss.deno.dev`.
 source code:
 
 ```typescript
-import { serve } from "https://deno.land/std@0.178.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.180.0/http/server.ts";
 
 var a = 0;
 

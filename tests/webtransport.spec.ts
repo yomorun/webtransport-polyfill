@@ -39,12 +39,12 @@ describe('close()', () => {
           assert.strictEqual(url, "wss://api.example.com/");
         }
         close(a, b) {
-          assert.strictEqual(a, 1000);
+          assert.strictEqual(a, 4321);
           assert.strictEqual(b, "test");
         }
       }
     });
     const wt = new WebTransportPolyfill("https://api.example.com");
-    wt.close({ closeCode: 1000, reason: "test" });
+    wt.close({ closeCode: 4321, reason: "test" });
   });
 })

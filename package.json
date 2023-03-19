@@ -48,7 +48,6 @@
     "start": "tsup ./src/index.ts --dts --watch",
     "build": "tsup ./src/index.ts --dts",
     "test": "mocha",
-    "clean": "rm -rf ./dist",
-    "compile": "tsc"
+    "clean": "rm -rf ./dist"
   }
 }
