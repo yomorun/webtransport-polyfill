@@ -1,10 +1,10 @@
-export class Datagrams {
+export class UnidirectionalStream {
   writable: WritableStream<Uint8Array> | null = null;
   readable: ReadableStream<Uint8Array> | null = null;
   constructor(ws: WebSocket) {
     return new Proxy(this, {
       get(_, prop) {
-        if (prop === "writable") {
+        if (prop === 'writable') {
           return new WritableStream<Uint8Array>({
             start(_) { },
             write(chunk) {
@@ -20,7 +20,9 @@ export class Datagrams {
             close() { },
             abort(_) { },
           });
-        } else if (prop === "readable") {
+        } else if (prop === 'readable') {
+          // actually WebSocket doesn't support stream initiated by server,
+          // keep this `readable` will make compitable to WebTransport interface.
           return new ReadableStream({
             start(controller) {
               let timer: any | null = null;
@@ -29,10 +31,12 @@ export class Datagrams {
                   clearTimeout(timer);
                 }
                 controller.enqueue(ev.data);
-                // controller.close();
-                // ws.removeEventListener('message', cb);
+                timer = setTimeout(
+                  () => ws.removeEventListener('message', cb),
+                  1_000
+                );
               };
-              ws.addEventListener("message", cb);
+              ws.addEventListener('message', cb);
             },
             cancel() { },
           });

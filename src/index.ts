@@ -1,9 +1,11 @@
 // import "regenerator-runtime/runtime.js";
 import { BidirectionalStream } from './BidirectionalStream';
-import { DataGrams } from './Datagrams';
-import { ReceiveStream } from './ReceiveStream';
-import { SendStream } from './SendStream';
-import { WebTransportCloseInfo } from './WebTransportCloseInfo';
+import { UnidirectionalStream } from './UnidirectionalStream'
+import { Datagrams } from './Datagrams';
+import { WebTransportCloseInfo } from './CloseInfo';
+import { ServerInitiatedStreams } from './ServerInitiatedStreams';
+// import { ReceiveStream } from './ReceiveStream';
+// import { SendStream } from './SendStream';
 
 declare global {
   interface Window {
@@ -16,9 +18,11 @@ export class WebTransportPolyfill {
   public closed: Promise<unknown>;
   public ready: Promise<unknown>;
   public close: (closeInfo?: WebTransportCloseInfo) => void;
+  datagrams: Datagrams | null = null;
+  public incomingBidirectionalStreams: ServerInitiatedStreams = new ServerInitiatedStreams()
+  public incomingUnidirectionalStreams: ServerInitiatedStreams = new ServerInitiatedStreams()
   #ws: WebSocket | null = null;
   #connErr: any;
-  datagrams: DataGrams | null = null;
 
   // https://www.w3.org/TR/webtransport/#webtransport-constructor
   // constructor(USVString url, optional WebTransportOptions options = {});
@@ -73,7 +77,7 @@ export class WebTransportPolyfill {
         reject(err);
       });
 
-      this.datagrams = new DataGrams(this.#ws);
+      this.datagrams = new Datagrams(this.#ws);
     });
 
     // https://www.w3.org/TR/webtransport/#dom-webtransport-close
@@ -91,14 +95,16 @@ export class WebTransportPolyfill {
       this.#ws.close(closeInfo?.closeCode, closeInfo?.reason);
     }
   }
-  createSendStream(): SendStream {
-    if (!this.#ws) throw Error('WebTransport is closed');
-    return new SendStream(this.#ws);
-  }
-  receiveStream(): ReceiveStream {
-    if (!this.#ws) throw Error('WebTransport is closed');
-    return new ReceiveStream(this.#ws);
-  }
+
+  // createSendStream(): SendStream {
+  //   if (!this.#ws) throw Error('WebTransport is closed');
+  //   return new SendStream(this.#ws);
+  // }
+
+  // receiveStream(): ReceiveStream {
+  //   if (!this.#ws) throw Error('WebTransport is closed');
+  //   return new ReceiveStream(this.#ws);
+  // }
 
   // Promise<WebTransportBidirectionalStream> createBidirectionalStream(optional WebTransportSendStreamOptions options = {});
   createBidirectionalStream(): Promise<BidirectionalStream> {
@@ -107,10 +113,19 @@ export class WebTransportPolyfill {
       resolve(new BidirectionalStream(this.#ws));
     });
   }
-  receiveBidrectionalStreams(): BidirectionalStream {
-    if (!this.#ws) throw Error('WebTransport is closed');
-    return new BidirectionalStream(this.#ws);
+
+  createUnidirectionalStream(): Promise<UnidirectionalStream> {
+    return new Promise((resolve, reject) => {
+      if (!this.#ws) return reject(Error('WebTransport is closed'));
+      resolve(new UnidirectionalStream(this.#ws));
+    });
   }
+
+  // didn't exist in spec
+  // receiveBidrectionalStreams(): BidirectionalStream {
+  //   if (!this.#ws) throw Error('WebTransport is closed');
+  //   return new BidirectionalStream(this.#ws);
+  // }
 }
 
 if (typeof window !== 'undefined') {
