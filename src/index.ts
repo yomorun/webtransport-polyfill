@@ -128,9 +128,43 @@ export class WebTransportPolyfill {
   // }
 }
 
+// downgrade class
+class WebTransport {
+  static original: any;
+  constructor(url: string) {
+    // if original exists, use it
+    if (WebTransport.original) {
+      const wt = new window.WebTransport.original(url);
+      // on closed, downgrade to polyfill
+      wt.closed.then(() => {
+        // create a new polyfill
+        const newWt = new WebTransportPolyfill(url);
+        // copy all properties
+        Object.assign(wt, newWt);
+        // copy all methods
+        Object.getOwnPropertyNames(newWt).forEach((key) => {
+          wt[key] = newWt[key];
+        });
+        // copy all static methods
+        Object.getOwnPropertyNames(newWt.constructor).forEach((key) => {
+          wt.constructor[key] = newWt.constructor[key];
+        });
+        // copy all static properties
+        Object.getOwnPropertyNames(newWt.constructor).forEach((key) => {
+          wt.constructor[key] = newWt.constructor[key];
+        });
+      });
+      return wt;
+    }
+    return new WebTransportPolyfill(url);
+  }
+}
+
 if (typeof window !== 'undefined') {
-  if (typeof window.WebTransport === 'undefined') {
-    window.WebTransport = WebTransportPolyfill;
+  window.WebTransport = WebTransport;
+  if (typeof window.WebTransport !== 'undefined') {
+    // save the original WebTransport
+    window.WebTransport.original = window.WebTransport;
   }
 }
 
