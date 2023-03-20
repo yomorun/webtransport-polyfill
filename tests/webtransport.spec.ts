@@ -14,7 +14,7 @@ beforeEach(() => {
 
 describe('test .ctor', () => {
   it('should throw SyntaxError when url is not valid', () => {
-    const err = new SyntaxError("Invalid URL");
+    const err = new SyntaxError("Invalid URL: oooo");
     assert.throws(() => { new WebTransportPolyfill("oooo") }, err);
   });
 
