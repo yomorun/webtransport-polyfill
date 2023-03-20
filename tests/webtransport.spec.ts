@@ -47,7 +47,7 @@ describe('test close()', () => {
         constructor(url: string) {
           assert.strictEqual(url, "wss://api.example.com/");
         }
-        close(a, b) {
+        close(a: number, b: string) {
           assert.strictEqual(a, undefined);
           assert.strictEqual(b, undefined);
         }
@@ -63,7 +63,7 @@ describe('test close()', () => {
         constructor(url: string) {
           assert.strictEqual(url, "wss://api.example.com/");
         }
-        close(a, b) {
+        close(a: number, b: string) {
           assert.strictEqual(a, 4321);
           assert.strictEqual(b, "test");
         }
@@ -72,4 +72,31 @@ describe('test close()', () => {
     const wt = new WebTransportPolyfill("https://api.example.com");
     wt.close({ closeCode: 4321, reason: "test" });
   });
+})
+
+describe('test server initiated stream', () => {
+  beforeEach(() => {
+    Object.assign(globalThis, {
+      WebSocket: class WebSocket {
+        constructor(url: string) {
+          console.log("> connect to:", url)
+        }
+        addEventListener() { }
+      }
+    });
+  })
+
+  it('incomingBidirectionalStreams', async () => {
+    const wt = new WebTransportPolyfill("https://api.example.com");
+    const rs = wt.incomingBidirectionalStreams;
+    const err = new Error("websocket do not support server initiated stream")
+    assert.throws(() => { rs.getReader() }, err)
+  })
+
+  it('incomingUniidirectionalStreams', async () => {
+    const wt = new WebTransportPolyfill("https://api.example.com");
+    const rs = wt.incomingUnidirectionalStreams;
+    const err = new Error("websocket do not support server initiated stream")
+    assert.throws(() => { rs.getReader() }, err)
+  })
 })

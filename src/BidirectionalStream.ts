@@ -6,7 +6,7 @@ export class BidirectionalStream {
       get(_, prop) {
         if (prop === 'writable') {
           return new WritableStream<Uint8Array>({
-            start(_) {},
+            start(_) { },
             write(chunk) {
               return new Promise((resolve, reject) => {
                 try {
@@ -17,8 +17,8 @@ export class BidirectionalStream {
                 }
               });
             },
-            close() {},
-            abort(_) {},
+            close() { },
+            abort(_) { },
           });
         } else if (prop === 'readable') {
           return new ReadableStream({
@@ -36,7 +36,7 @@ export class BidirectionalStream {
               };
               ws.addEventListener('message', cb);
             },
-            cancel() {},
+            cancel() { },
           });
         }
         return undefined;
