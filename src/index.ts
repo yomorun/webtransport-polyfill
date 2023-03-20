@@ -96,16 +96,6 @@ export class WebTransportPolyfill {
     }
   }
 
-  // createSendStream(): SendStream {
-  //   if (!this.#ws) throw Error('WebTransport is closed');
-  //   return new SendStream(this.#ws);
-  // }
-
-  // receiveStream(): ReceiveStream {
-  //   if (!this.#ws) throw Error('WebTransport is closed');
-  //   return new ReceiveStream(this.#ws);
-  // }
-
   // Promise<WebTransportBidirectionalStream> createBidirectionalStream(optional WebTransportSendStreamOptions options = {});
   createBidirectionalStream(): Promise<BidirectionalStream> {
     return new Promise((resolve, reject) => {
@@ -114,6 +104,7 @@ export class WebTransportPolyfill {
     });
   }
 
+  // Promise<WebTransportUniidirectionalStream> createBidirectionalStream(optional WebTransportSendStreamOptions options = {});
   createUnidirectionalStream(): Promise<UnidirectionalStream> {
     return new Promise((resolve, reject) => {
       if (!this.#ws) return reject(Error('WebTransport is closed'));
@@ -121,10 +112,19 @@ export class WebTransportPolyfill {
     });
   }
 
-  // didn't exist in spec
+  // didn't exists in spec
+
   // receiveBidrectionalStreams(): BidirectionalStream {
   //   if (!this.#ws) throw Error('WebTransport is closed');
   //   return new BidirectionalStream(this.#ws);
+  // }
+  // createSendStream(): SendStream {
+  //   if (!this.#ws) throw Error('WebTransport is closed');
+  //   return new SendStream(this.#ws);
+  // }
+  // receiveStream(): ReceiveStream {
+  //   if (!this.#ws) throw Error('WebTransport is closed');
+  //   return new ReceiveStream(this.#ws);
   // }
 }
 
