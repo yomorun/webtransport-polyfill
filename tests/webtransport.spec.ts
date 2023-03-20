@@ -47,7 +47,7 @@ describe('test close()', () => {
         constructor(url: string) {
           assert.strictEqual(url, "wss://api.example.com/");
         }
-        close(a: number, b: String) {
+        close(a: number, b: string) {
           assert.strictEqual(a, undefined);
           assert.strictEqual(b, undefined);
         }
@@ -63,7 +63,7 @@ describe('test close()', () => {
         constructor(url: string) {
           assert.strictEqual(url, "wss://api.example.com/");
         }
-        close(a: number, b: String) {
+        close(a: number, b: string) {
           assert.strictEqual(a, 4321);
           assert.strictEqual(b, "test");
         }
