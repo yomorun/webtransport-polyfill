@@ -57,10 +57,6 @@ export class WebTransportPolyfill {
       "color: white; background-color: green"
     );
 
-    this.#ws.onclose = (event) => {
-      console.log("ws close", event);
-    };
-
     // readonly attribute Promise<WebTransportCloseInfo> closed;
     this.closed = new Promise((resolve, reject) => {
       if (!this.#ws) {
