@@ -1,11 +1,10 @@
-// import "regenerator-runtime/runtime.js";
+/// <reference lib="dom" />
+
 import { BidirectionalStream } from "./BidirectionalStream";
-import { UnidirectionalStream } from "./UnidirectionalStream";
-import { Datagrams } from "./Datagrams";
 import { WebTransportCloseInfo } from "./CloseInfo";
+import { Datagrams } from "./Datagrams";
 import { ServerInitiatedStreams } from "./ServerInitiatedStreams";
-// import { ReceiveStream } from './ReceiveStream';
-// import { SendStream } from './SendStream';
+import { UnidirectionalStream } from "./UnidirectionalStream";
 
 declare global {
   interface Window {
@@ -24,11 +23,11 @@ export class WebTransportPolyfill {
   public incomingUnidirectionalStreams: ServerInitiatedStreams =
     new ServerInitiatedStreams();
   #ws: WebSocket | null = null;
-  #connErr: any;
+  #url: string
 
   // https://www.w3.org/TR/webtransport/#webtransport-constructor
   // constructor(USVString url, optional WebTransportOptions options = {});
-  constructor(_url: string) {
+  constructor(_url: string, options?: any) {
     let url: URL;
     try {
       url = new URL(_url);
@@ -45,25 +44,49 @@ export class WebTransportPolyfill {
       // 5.2.2 If parsedURL is a failure, throw a SyntaxError exception
       throw new SyntaxError(err.message);
     }
+
     // change `https` to `wss`
     url.protocol = "wss";
-    let parsedUrl = url.toString();
+    // let parsedUrl = url.toString();
 
-    this.#ws = new WebSocket(parsedUrl);
-    this.#ws.binaryType = "arraybuffer";
+    this.#url = url.toString();
+    this.#connect();
+    this.#init();
+  }
 
+  #connect() {
+    const ws = new WebSocket(this.#url);
+    ws.binaryType = "arraybuffer";
+    this.#ws = ws;
+  }
+
+  #init() {
     console.info(
-      "%cWebTransport polyfilled",
-      "color: white; background-color: green"
+      "%c%s",
+      "color: white; background-color: green",
+      "WebTransport polyfilled for " + this.#url
     );
+
+    // https://www.w3.org/TR/webtransport/#dom-webtransport-close
+    this.close = (closeInfo?: WebTransportCloseInfo) => {
+      console.debug("[polyfill] close()", closeInfo)
+      if (this.#ws && this.#ws.readyState <= WebSocket.OPEN) {
+        this.#ws.close(closeInfo?.closeCode || 1000, closeInfo?.reason || 'user close');
+      }
+    };
 
     // readonly attribute Promise<WebTransportCloseInfo> closed;
     this.closed = new Promise((resolve, reject) => {
       if (!this.#ws) {
         return reject(Error("WebTransport is closed"));
       }
-      this.#ws.addEventListener("close", (ce) => {
-        resolve(ce);
+      this.#ws.addEventListener("close", (closeEvent) => {
+        console.log("[polyfill] closed", `code=${closeEvent.code}, reason=${closeEvent.reason}`)
+        // code < 4000 means it's not a normal close
+        if (closeEvent && (closeEvent.code > 1000 && closeEvent.code < 4000)) {
+          return reject(closeEvent)
+        }
+        resolve(closeEvent);
       });
     });
 
@@ -76,29 +99,17 @@ export class WebTransportPolyfill {
       this.#ws.addEventListener("open", () => {
         resolve(null);
       });
-      this.#ws.addEventListener("error", (err) => {
-        console.log(err, "error");
-        this.#connErr = err;
-        reject(err);
+
+      this.#ws.addEventListener("error", (evt) => {
+        // console.debug("#ws.addEventListener(error)", { evt });
+        // console.debug("#ws.addEventListener(error)", evt.target);
+        // TODO: this `err` is a Event, not Error
+        // this.#connErr = evt;
+        reject(evt);
       });
 
       this.datagrams = new Datagrams(this.#ws);
     });
-
-    // https://www.w3.org/TR/webtransport/#dom-webtransport-close
-    this.close = (closeInfo?: WebTransportCloseInfo) => {
-      if (!this.#ws) {
-        return;
-      }
-      // in case of close code is not in range 3000-4999, set it to 4000
-      // ref: https://www.rfc-editor.org/rfc/rfc6455.html#section-7.4.2
-      if (closeInfo) {
-        if (closeInfo.closeCode < 3000 || closeInfo.closeCode > 4999) {
-          closeInfo.closeCode = 4000;
-        }
-      }
-      this.#ws.close(closeInfo?.closeCode, closeInfo?.reason);
-    };
   }
 
   // Promise<WebTransportBidirectionalStream> createBidirectionalStream(optional WebTransportSendStreamOptions options = {});
@@ -109,33 +120,19 @@ export class WebTransportPolyfill {
     });
   }
 
-  // Promise<WebTransportUniidirectionalStream> createBidirectionalStream(optional WebTransportSendStreamOptions options = {});
+  // Promise<WebTransportUnidirectionalStream> createBidirectionalStream(optional WebTransportSendStreamOptions options = {});
   createUnidirectionalStream(): Promise<UnidirectionalStream> {
     return new Promise((resolve, reject) => {
       if (!this.#ws) return reject(Error("WebTransport is closed"));
       resolve(new UnidirectionalStream(this.#ws));
     });
   }
-
-  // didn't exists in spec
-
-  // receiveBidrectionalStreams(): BidirectionalStream {
-  //   if (!this.#ws) throw Error('WebTransport is closed');
-  //   return new BidirectionalStream(this.#ws);
-  // }
-  // createSendStream(): SendStream {
-  //   if (!this.#ws) throw Error('WebTransport is closed');
-  //   return new SendStream(this.#ws);
-  // }
-  // receiveStream(): ReceiveStream {
-  //   if (!this.#ws) throw Error('WebTransport is closed');
-  //   return new ReceiveStream(this.#ws);
-  // }
 }
 
 if (typeof window !== "undefined") {
   if (typeof window.WebTransport === "undefined") {
     window.WebTransport = WebTransportPolyfill;
+    console.log("[webtransport-polyfill]: WebTransport is polyfilled")
   }
 }
 

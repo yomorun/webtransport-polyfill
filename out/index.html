@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<body>
+    <div id="root">
+        <button id="btnClose">close connection</button>
+    </div>
+    <script type="module">
+        import { WebTransportPolyfill } from './index.js'
+        // import { WebTransportPolyfill } from 'https://cdn.skypack.dev/ccwtpf'
+
+        const url = `https://wsss.deno.dev/`;
+
+        const transport = new WebTransportPolyfill(url, { reconnect: true });
+
+        // Optionally, set up functions to respond to the connection closing:
+        transport.closed
+            .then(({ code, reason }) => {
+                console.log(`The HTTP/3 connection to ${url} closed gracefully. [code=${code}, reason=${reason}]`, url);
+            })
+            .catch((e) => {
+                console.error(`The HTTP/3 connection to ${url} closed due to error.`, url);
+                console.log({ e });
+            });
+
+
+        document.getElementById('btnClose').addEventListener('click', () => {
+            // close the connection
+            transport.close({
+                closeCode: 4888,
+                reason: "client close connection by click",
+            });
+            console.log('triggered 4888 close')
+        });
+
+        // Once .ready fulfilled, the connection can be used
+        await transport.ready;
+
+        // Sending datagrams to the server
+        const writer = transport.datagrams.writable.getWriter();
+        const data1 = new Uint8Array([65, 66, 67]);
+        const data2 = new Uint8Array([68, 69, 70, 71]);
+        writer.write(data1);
+        setTimeout(() => {
+            writer.write(data2);
+        }, 1e3);
+
+        // setTimeout(() => {
+        //     // close the connection
+        //     transport.close({
+        //         closeCode: 4888,
+        //         reason: "client close connection by setTimeout",
+        //     });
+        // }, 2e3);
+
+        // Read datagrams from the server.
+        const reader = transport.datagrams.readable.getReader();
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) {
+                break;
+            }
+            console.log(value);
+        }
+    </script>
+</body>
+
+</html>

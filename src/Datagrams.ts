@@ -10,6 +10,10 @@ export class Datagrams {
             write(chunk) {
               return new Promise((resolve, reject) => {
                 try {
+                  if (ws.readyState !== WebSocket.OPEN) {
+                    console.debug("Datagram.send(): ws.readyState:", ws.readyState);
+                    return
+                  }
                   ws.send(chunk);
                   resolve();
                 } catch (e) {

@@ -188,10 +188,34 @@ If you would like to contribute to the WebTransport polyfill, please fork the
 repository and submit a pull request. You can also submit issues or feature
 requests on the GitHub page.
 
-pre-publish:
+Build:
 
 ```bash
-pnpm run clean && pnpm run compile
+bun run build
+```
+
+Test:
+
+```bash
+bun run test
+```
+
+e2e:
+
+```bash
+bunx serve out
+```
+
+Verify Publish:
+
+```bash
+npm pack dry-run
+```
+
+Publish:
+
+```bash
+npm publish
 ```
 
 ### Public WebSocket Test Server
